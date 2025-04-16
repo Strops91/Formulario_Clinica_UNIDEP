@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clínica UNIDEP</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+    <div class="form-container">
+        <h1>Cadastro de Pacientes</h1>
+        
+        <div class="file-info" id="fileInfo">
+            Nenhum arquivo selecionado. Por favor, crie ou abra um arquivo.
+        </div>
+        
+        <div class="btn-group">
+            <button type="button" id="createFileBtn" class="secondary-btn">
+                <span>📁</span> Criar Novo Arquivo
+            </button>
+            <button type="button" id="openFileBtn" class="secondary-btn">
+                <span>📂</span> Abrir Arquivo Existente
+            </button>
+        </div>
+        
+        <form id="dataForm" style="margin-top: 25px; display: none;">
+            <div class="form-group">
+                <label for="nome">Nome:</label>
+                <input type="text" id="nome" name="nome" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="cpf">CPF:</label>
+                <input type="text" id="cpf" name="cpf" placeholder="123.456.789-01" required>
+            </div>
+
+            <div class="form-group">
+                <label for="genero">Gênero:</label>
+                <select id="genero" name="genero" required>
+                    <option value="">Selecione...</option>
+                    <option value="Masculino">Masculino</option>
+                    <option value="Feminino">Feminino</option>
+                    <option value="Outro">Outro</option>
+                    <option value="Prefiro não informar">Prefiro não informar</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="telefone">☏ Telefone:</label>
+                <input type="tel" id="telefone" name="telefone" required>
+            </div>
+
+            <div class="form-group">
+                 <label for="cep">CEP:</label>
+                 <input type="text" id="cep" name="cep" required>
+            </div>
+                      
+            <div class="form-group">
+                <label for="estado">Estado:</label>
+                <input type="text" id="estado" name="estado" required>
+            </div>
+
+            <div class="form-group">
+                <label for="cidade">Cidade:</label>
+                <input type="text" id="cidade" name="cidade" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="rua">Rua:</label>
+                <input type="text" id="rua" name="rua" required>
+            </div>            
+            <div class="form-group">
+                <label for="acompanhante">Acompanhante:</label>
+                <input type="text" id="acompanhante" name="acompanhante">
+            </div>
+                
+            <div class="form-group">
+                <label>Campo de Estágio:</label>
+                <div class="estagio-options">
+                    <label>
+                        <input type="radio" name="estagio" value="Ortopedia" checked> 
+                        <span>Ortopedia</span>
+                    </label>
+                    <label>
+                        <input type="radio" name="estagio" value="Pediatria"> 
+                        <span>Pediatria</span>
+                    </label>
+                    <label>
+                        <input type="radio" name="estagio" value="Hidroterapia"> 
+                        <span>Hidroterapia</span>
+                    </label>
+                    <label>
+                        <input type="radio" name="estagio" value="Neurologia"> 
+                        <span>Neurologia</span>
+                    </label>
+                    <label>
+                        <input type="radio" name="estagio" value="Equoterapia"> 
+                        <span>Equoterapia</span>
+                    </label>
+                    <label>
+                        <input type="radio" name="estagio" value="Ambulatorial"> 
+                        <span>Ambulatorial</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Dia de atendimento:</label>
+                <div class="atendimento-options">
+                    <label>
+                        <input type="radio" name="atendimento" value="Segunda - Quarta - Sexta" checked> 
+                        <span>✅ Segunda - Quarta - Sexta</span>
+                    </label>
+                    <label>
+                        <input type="radio" name="atendimento" value="Terça - Quinta"> 
+                        <span>✅ Terça - Quinta</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Presença:</label>
+                <div class="presenca-options">
+                    <label>
+                        <input type="radio" name="presenca" value="Sim" checked> 
+                        <span>✅ Presente</span>
+                    </label>
+                    <label>
+                        <input type="radio" name="presenca" value="Não"> 
+                        <span>❌ Ausente</span>
+                    </label>
+                </div>
+            </div>
+            
+            <button type="button" id="saveBtn" class="primary-btn">
+                <span>💾</span> Salvar Dados
+            </button>
+        </form>
+    </div>
+
+    <div class="report-panel">
+        <div class="option-group">
+            <div class="option-item">
+                <div class="logo-controls">
+                    <!-- Substituição do campo de upload por imagem fixa -->
+                    <img src="logo.png" alt="Logo Clínica UNIDEP" class="logo-preview" id="logoPreview" style="max-width: 200px; margin-bottom: 15px;">
+                </div>
+            </div>
+        </div>
+        
+        <div class="option-group">
+            <h2>Opções de Relatório</h2>
+            <h3>Tipo de Relatório</h3>
+            <div class="option-item">
+                <label>
+                    <input type="radio" name="reportType" value="completo" checked>
+                    <span>📋 Nome com Presença</span>
+                </label>
+            </div>
+            <div class="option-item">
+                <label>
+                    <input type="radio" name="reportType" value="somente_nome">
+                    <span>📝 Somente Nome</span>
+                </label>
+            </div>
+            <div class="option-item">
+                <label>
+                    <input type="radio" name="reportType" value="somente_presenca">
+                    <span>✅ Somente Presença</span>
+                </label>
+            </div>
+        </div>
+        
+        <div class="option-group">
+            <h3>Filtrar por Presença</h3>
+            <div class="option-item">
+                <label>
+                    <input type="radio" name="presencaFilter" value="todos" checked>
+                    <span>👥 Todos</span>
+                </label>
+            </div>
+            <div class="option-item">
+                <label>
+                    <input type="radio" name="presencaFilter" value="sim">
+                    <span>✅ Somente Presentes</span>
+                </label>
+            </div>
+            <div class="option-item">
+                <label>
+                    <input type="radio" name="presencaFilter" value="nao">
+                    <span>❌ Somente Ausentes</span>
+                </label>
+            </div>
+        </div>
+        
+        <div class="option-group">
+            <h3>Buscar por Nome</h3>
+            <div class="form-group">
+                <input type="text" id="searchName" placeholder="Digite o nome para buscar">
+            </div>
+            <button type="button" id="searchBtn" class="warning-btn">
+                <span>🔍</span> Relatório com Filtro
+            </button>
+        </div>
+        
+        <button type="button" id="showAllBtn" class="secondary-btn">
+            <span>📄</span> Relatório Completo
+        </button>
+        
+        <div id="statusMessage" class="status-message" style="display: none;"></div>
+    </div>
+
+    <script>
+        // Inicializar jsPDF
+        const { jsPDF } = window.jspdf;
+        
+        // Variáveis para o sistema
+        let fileHandle;
+        let fileData = [];
+        let logoBase64 = "logo.png"; // Agora usando a imagem fixa
+        
+        // Elementos do DOM
+        const fileInfoEl = document.getElementById('fileInfo');
+        const dataForm = document.getElementById('dataForm');
+        const createFileBtn = document.getElementById('createFileBtn');
+        const openFileBtn = document.getElementById('openFileBtn');
+        const saveBtn = document.getElementById('saveBtn');
+        const searchBtn = document.getElementById('searchBtn');
+        const showAllBtn = document.getElementById('showAllBtn');
+        const searchName = document.getElementById('searchName');
+        const statusMessage = document.getElementById('statusMessage');
+        const logoPreview = document.getElementById('logoPreview');
+        
+        // Verificar se a API File System Access está disponível
+        const isFileSystemAccessAvailable = 'showOpenFilePicker' in window;
+        
+        if (!isFileSystemAccessAvailable) {
+            fileInfoEl.innerHTML = 'Seu navegador não suporta acesso persistente a arquivos. ' + 
+                                   'Use Chrome ou Edge versão 86+ ou Firefox 111+.';
+            createFileBtn.disabled = true;
+            openFileBtn.disabled = true;
+        }
+        
+        // Máscara para CPF
+        document.getElementById('cpf').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            
+            if (value.length > 3) {
+                value = value.substring(0, 3) + '.' + value.substring(3);
+            }
+            if (value.length > 7) {
+                value = value.substring(0, 7) + '.' + value.substring(7);
+            }
+            if (value.length > 11) {
+                value = value.substring(0, 11) + '-' + value.substring(11);
+            }
+            
+            // Limita a 14 caracteres (incluindo pontos e traço)
+            e.target.value = value.substring(0, 14);
+        });
+
+        document.getElementById('cep').addEventListener('blur', function () {
+            const cep = this.value.replace(/\D/g, '');
+
+    if (cep.length === 8) {
+      fetch(`https://viacep.com.br/ws/${cep}/json/`)
+        .then(response => response.json())
+        .then(data => {
+          if (!data.erro) {
+            document.getElementById('cidade').value = data.localidade || '';
+            document.getElementById('estado').value = data.uf || '';
+          } else {
+            alert('CEP não encontrado.');
+          }
+        })
+        .catch(error => {
+          console.error('Erro ao buscar CEP:', error);
+          alert('Erro ao buscar o CEP.');
+        });
+    }
+  });
+        
+        // Máscara para telefone
+        document.getElementById('telefone').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            
+            if (value.length > 0) {
+                value = '(' + value.substring(0, 2) + ')' + value.substring(2);
+            }
+            if (value.length > 8) {
+                value = value.substring(0, 8) + '-' + value.substring(8, 12);
+            }
+            
+            // Limita a 14 caracteres
+            e.target.value = value.substring(0, 14);
+        });
+        
+        // Criar novo arquivo
+        createFileBtn.addEventListener('click', async () => {
+            try {
+                fileHandle = await window.showSaveFilePicker({
+                    suggestedName: 'pacientes_clinica_unidep.xlsx',
+                    types: [{
+                        description: 'Arquivos Excel',
+                        accept: {
+                            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx']
+                        }
+                    }]
+                });
+                
+                // Inicializar dados vazios
+                fileData = [];
+                updateFileInfo();
+                dataForm.style.display = 'block';
+                
+                // Criar workbook vazio e salvar
+                await saveDataToFile();
+                showStatus('Novo arquivo criado com sucesso!', 'success');
+                
+            } catch (error) {
+                if (error.name !== 'AbortError') {
+                    console.error('Erro ao criar arquivo:', error);
+                    showStatus('Erro ao criar arquivo: ' + error.message, 'error');
+                }
+            }
+        });
+        
+        // Abrir arquivo existente
+        openFileBtn.addEventListener('click', async () => {
+            try {
+                [fileHandle] = await window.showOpenFilePicker({
+                    types: [{
+                        description: 'Arquivos Excel',
+                        accept: {
+                            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx']
+                        }
+                    }],
+                    multiple: false
+                });
+                
+                // Carregar dados do arquivo
+                await loadFileData();
+                updateFileInfo();
+                dataForm.style.display = 'block';
+                showStatus('Arquivo carregado com sucesso!', 'success');
+                
+            } catch (error) {
+                if (error.name !== 'AbortError') {
+                    console.error('Erro ao abrir arquivo:', error);
+                    showStatus('Erro ao abrir arquivo: ' + error.message, 'error');
+                }
+            }
+        });
+        
+        // Salvar dados no formulário
+        saveBtn.addEventListener('click', async () => {
+            // Validação do CPF
+            const cpfInput = document.getElementById('cpf');
+            const cpfRegex = /^\d{3}\.\d{3}\.\d{3}-\d{2}$/;
+
+            if (!cpfRegex.test(cpfInput.value)) {
+                showStatus('Por favor, insira um CPF válido no formato: 123.456.789-01', 'error');
+                return;
+            }
+
+            // Validação do telefone
+            const telefoneInput = document.getElementById('telefone');
+            const telefoneRegex = /^\(\d{2}\)\d{4,5}-\d{4}$/;
+            
+            if (!telefoneRegex.test(telefoneInput.value)) {
+                showStatus('Por favor, insira um telefone válido no formato: (99)9999-9999 ou (99)99999-9999', 'error');
+                return;
+            }
+
+            // Coletar dados do formulário
+            const formData = {};
+            const formElements = dataForm.elements;
+
+            for (let element of formElements) {
+                if (element.name) {
+                    if (element.type === 'radio') {
+                        if (element.checked) {
+                            formData[element.name] = element.value;
+                        }
+                    } else if (element.tagName === 'SELECT') {
+                        formData[element.name] = element.value;
+                    } else {
+                        formData[element.name] = element.value;
+                    }
+                }
+            }
+
+            // Adicionar aos dados
+            fileData.push(formData);
+
+            // Salvar no arquivo
+            try {
+                await saveDataToFile();
+                showStatus('Dados salvos com sucesso!', 'success');
+                dataForm.reset();
+                // Resetar os radios para valores padrão
+                document.querySelector('input[name="estagio"][value="Ortopedia"]').checked = true;
+                document.querySelector('input[name="atendimento"][value="Segunda - Quarta - Sexta"]').checked = true;
+                document.querySelector('input[name="presenca"][value="Sim"]').checked = true;
+            } catch (error) {
+                console.error('Erro ao salvar dados:', error);
+                showStatus('Erro ao salvar dados: ' + error.message, 'error');
+            }
+        });
+        
+        // Gerar PDF com filtro por nome
+        searchBtn.addEventListener('click', () => {
+            const searchTerm = searchName.value.trim().toLowerCase();
+            if (!searchTerm) {
+                showStatus('Digite um nome para buscar', 'info');
+                return;
+            }
+            
+            if (fileData.length === 0) {
+                showStatus('Nenhum dado carregado para buscar', 'info');
+                return;
+            }
+            
+            // Filtrar por nome
+            let results = fileData.filter(item => 
+                item.nome && item.nome.toLowerCase().includes(searchTerm)
+            );
+            
+            // Aplicar filtro de presença
+            results = filterByPresence(results);
+            
+            if (results.length > 0) {
+                generatePDF(results, `Relatório Filtrado - ${searchTerm}`);
+                showStatus(`PDF gerado com ${results.length} registro(s) encontrado(s)`, 'success');
+            } else {
+                showStatus('Nenhum resultado encontrado', 'info');
+            }
+        });
+        
+        // Gerar PDF com todos os registros
+        showAllBtn.addEventListener('click', () => {
+            if (fileData.length > 0) {
+                // Aplicar filtro de presença
+                const filteredData = filterByPresence(fileData);
+                
+                if (filteredData.length > 0) {
+                    generatePDF(filteredData, 'Relatório Completo de Pacientes');
+                    showStatus(`PDF gerado com ${filteredData.length} registro(s)`, 'success');
+                } else {
+                    showStatus('Nenhum registro corresponde ao filtro de presença', 'info');
+                }
+            } else {
+                showStatus('Nenhum dado disponível para gerar relatório', 'info');
+            }
+        });
+        
+        // Filtrar dados por presença
+        function filterByPresence(data) {
+            const filterValue = document.querySelector('input[name="presencaFilter"]:checked').value;
+            
+            if (filterValue === 'todos') {
+                return data;
+            } else if (filterValue === 'sim') {
+                return data.filter(item => item.presenca === 'Sim');
+            } else {
+                return data.filter(item => item.presenca === 'Não');
+            }
+        }
+        
+        // Obter tipo de relatório selecionado
+        function getReportType() {
+            return document.querySelector('input[name="reportType"]:checked').value;
+        }
+        
+        // Carregar dados do arquivo
+        async function loadFileData() {
+            const file = await fileHandle.getFile();
+            const arrayBuffer = await file.arrayBuffer();
+            
+            const workbook = XLSX.read(arrayBuffer);
+            if (workbook.SheetNames.includes('Dados')) {
+                const worksheet = workbook.Sheets['Dados'];
+                fileData = XLSX.utils.sheet_to_json(worksheet);
+                
+                // Garantir que todos os registros tenham o campo presenca
+                fileData = fileData.map(item => {
+                    if (!item.presenca) {
+                        item.presenca = 'Sim'; // Valor padrão
+                    }
+                    return item;
+                });
+            } else {
+                fileData = [];
+            }
+        }
+        
+        // Salvar dados no arquivo
+        async function saveDataToFile() {
+            // Criar workbook
+            const workbook = XLSX.utils.book_new();
+            const worksheet = XLSX.utils.json_to_sheet(fileData);
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'Dados');
+            
+            // Converter para array buffer
+            const arrayBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+            
+            // Escrever no arquivo
+            const writable = await fileHandle.createWritable();
+            await writable.write(arrayBuffer);
+            await writable.close();
+            
+            updateFileInfo();
+        }
+        
+        // Atualizar informações do arquivo na UI
+        function updateFileInfo() {
+            if (fileHandle) {
+                fileInfoEl.innerHTML = `
+                    <strong>Arquivo atual:</strong> ${fileHandle.name}<br>
+                    <strong>Registros salvos:</strong> ${fileData.length}<br>
+                    <small>O arquivo está mantido no seu sistema.</small>
+                `;
+            } else {
+                fileInfoEl.innerHTML = 'Nenhum arquivo selecionado. Por favor, crie ou abra um arquivo.';
+            }
+        }
+        
+        // Gerar PDF
+        function generatePDF(data, title) {
+            // Criar novo documento PDF
+            const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+
+            // Adicionar logo fixa
+            try {
+                doc.addImage(logoBase64, 'PNG', 14, 10, 40, 20);
+                var startY = 40;
+            } catch (e) {
+                console.log("Usando logo padrão incorporada");
+                var startY = 30;
+            }
+
+            // Título do relatório
+            doc.setFontSize(16);
+            doc.text(`Relatório de Atendimentos - Clínica UNIDEP`, 105, startY - 15, { align: 'center' });
+
+            // Data do relatório
+            const dataAtual = new Date().toLocaleDateString('pt-BR');
+            doc.setFontSize(10);
+            doc.text(`Data do relatório: ${dataAtual}`, 14, startY - 8);
+
+            // Quantidade de registros
+            doc.text(`Total de registros: ${data.length}`, 14, startY - 3);
+
+            // Configurar colunas baseadas no tipo de relatório
+            let headers = [];
+            let columnsToShow = [];
+            const reportType = getReportType();
+
+            switch (reportType) {
+                case 'somente_nome':
+                    headers = ['Nome'];
+                    columnsToShow = ['nome'];
+                    break;
+                case 'somente_presenca':
+                    headers = ['Nome', 'Presença'];
+                    columnsToShow = ['nome', 'presenca'];
+                    break;
+                default: // completo
+                    headers = ['Nome', 'CPF', 'Gênero', 'Telefone', 'Campo de Estágio', 'Dia Atendimento', 'Presença'];
+                    columnsToShow = ['nome', 'cpf', 'genero', 'telefone', 'estagio', 'atendimento', 'presenca'];
+            }
+
+            // Preparar dados para a tabela
+            const rows = data.map(item =>
+                columnsToShow.map(column => item[column] || '')
+            );
+
+            // Adicionar tabela
+            doc.autoTable({
+                head: [headers],
+                body: rows,
+                startY: startY,
+                styles: {
+                    fontSize: 10,
+                    cellPadding: 4,
+                    overflow: 'linebreak'
+                },
+                headStyles: {
+                    fillColor: [41, 128, 185],
+                    textColor: 255,
+                    fontStyle: 'bold'
+                },
+                alternateRowStyles: {
+                    fillColor: [245, 245, 245]
+                },
+                margin: { top: startY }
+            });
+
+            // Adicionar total de registros no final
+            const totalRegistros = rows.length;
+            const yFinal = doc.lastAutoTable.finalY + 10;
+            doc.setFontSize(12);
+            doc.text(`Total de registros: ${totalRegistros}`, 14, yFinal);
+
+            // Salvar o PDF
+            const now = new Date();
+            const fileName = `Relatorio_${title.replace(/ /g, '_')}_${now.getTime()}.pdf`;
+            doc.save(fileName);
+        }
+        
+        // Mostrar mensagem de status
+        function showStatus(message, type) {
+            statusMessage.textContent = message;
+            statusMessage.className = `status-message ${type}`;
+            statusMessage.style.display = 'block';
+            
+            // Esconder a mensagem após 5 segundos
+            setTimeout(() => {
+                statusMessage.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Tentar recuperar permissão do arquivo ao carregar a página
+        async function init() {
+            if (!isFileSystemAccessAvailable) return;
+            
+            // Verificar se há permissões salvas (somente para alguns navegadores)
+            const handles = await window.showOpenFilePicker({
+                _preferPolyfill: false,
+                getAsFileSystemHandles: true
+            }).catch(() => null);
+            
+            if (handles && handles.length > 0) {
+                fileHandle = handles[0];
+                await loadFileData();
+                updateFileInfo();
+                dataForm.style.display = 'block';
+                showStatus('Arquivo carregado com sucesso!', 'success');
+            }
+        }
+        
+        // Inicializar
+        init();
+    </script>
+</body>
+</html>
