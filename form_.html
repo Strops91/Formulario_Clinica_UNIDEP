@@ -145,7 +145,7 @@
         <div class="option-group">
             <div class="option-item">
                 <div class="logo-controls">
-                    <!-- Substituição do campo de upload por imagem fixa -->
+                    
                     <img src="logo.png" alt="Logo Clínica UNIDEP" class="logo-preview" id="logoPreview" style="max-width: 200px; margin-bottom: 15px;">
                 </div>
             </div>
@@ -214,15 +214,15 @@
     </div>
 
     <script>
-        // Inicializar jsPDF
+        // jsPDF
         const { jsPDF } = window.jspdf;
         
-        // Variáveis para o sistema
+        // Variáveis 
         let fileHandle;
         let fileData = [];
-        let logoBase64 = "logo.png"; // Agora usando a imagem fixa
+        let logoBase64 = "logo.png"; 
         
-        // Elementos do DOM
+        // DOM
         const fileInfoEl = document.getElementById('fileInfo');
         const dataForm = document.getElementById('dataForm');
         const createFileBtn = document.getElementById('createFileBtn');
@@ -234,7 +234,7 @@
         const statusMessage = document.getElementById('statusMessage');
         const logoPreview = document.getElementById('logoPreview');
         
-        // Verificar se a API File System Access está disponível
+        // API File System Access está disponível
         const isFileSystemAccessAvailable = 'showOpenFilePicker' in window;
         
         if (!isFileSystemAccessAvailable) {
@@ -258,7 +258,7 @@
                 value = value.substring(0, 11) + '-' + value.substring(11);
             }
             
-            // Limita a 14 caracteres (incluindo pontos e traço)
+            
             e.target.value = value.substring(0, 14);
         });
 
@@ -294,7 +294,7 @@
                 value = value.substring(0, 8) + '-' + value.substring(8, 12);
             }
             
-            // Limita a 14 caracteres
+            
             e.target.value = value.substring(0, 14);
         });
         
@@ -316,7 +316,7 @@
                 updateFileInfo();
                 dataForm.style.display = 'block';
                 
-                // Criar workbook vazio e salvar
+                // Criar xlsx
                 await saveDataToFile();
                 showStatus('Novo arquivo criado com sucesso!', 'success');
                 
@@ -355,7 +355,7 @@
             }
         });
         
-        // Salvar dados no formulário
+        // Salvar dados
         saveBtn.addEventListener('click', async () => {
             // Validação do CPF
             const cpfInput = document.getElementById('cpf');
@@ -401,7 +401,7 @@
                 await saveDataToFile();
                 showStatus('Dados salvos com sucesso!', 'success');
                 dataForm.reset();
-                // Resetar os radios para valores padrão
+                // Converte em true ou false
                 document.querySelector('input[name="estagio"][value="Ortopedia"]').checked = true;
                 document.querySelector('input[name="atendimento"][value="Segunda - Quarta - Sexta"]').checked = true;
                 document.querySelector('input[name="presenca"][value="Sim"]').checked = true;
